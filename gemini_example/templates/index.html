@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Drag and Drop Bild Upload</title>
+    <style>
+        #drop-area {
+            border: 2px dashed #ccc;
+            padding: 20px;
+            width: 300px;
+            margin-bottom: 20px;
+        }
+        #response {
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 300px;
+            height: 100px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+
+<div id="drop-area">
+    Bild hierher ziehen
+</div>
+<div id="response">Antwort wird hier angezeigt</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    let dropArea = $('#drop-area');
+
+    dropArea.on('dragover', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).addClass('highlight');
+    }).on('dragleave', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).removeClass('highlight');
+    }).on('drop', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        $(this).removeClass('highlight');
+        let files = e.originalEvent.dataTransfer.files;
+        uploadFile(files[0]);
+    });
+
+    function uploadFile(file) {
+        let formData = new FormData();
+        formData.append('file', file);
+
+        $.ajax({
+            url: '/upload',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(data) {
+                $('#response').text(JSON.stringify(data, null, 2));
+            },
+            error: function(xhr, status, error) {
+                $('#response').text('Ein Fehler ist aufgetreten.');
+            }
+        });
+    }
+});
+</script>
+
+</body>
+</html>
